@@ -1,7 +1,7 @@
 #!/bin/bash
 
-logs=('process' 'disk' 'memory' 'load')
 date=`date | awk '{print $3, $2, $6, $4}'`
+declare -A to_be_logged=([process]=0 [memory]=0 [disk]=0 [load]=0)
 
 create_file(){
     if [[ -f $file ]];
@@ -40,7 +40,7 @@ load_logs(){
 get_logs(){
     case $1 in
         process)
-           process_logs "$2/process.log" 
+           process_logs "$2/process.log"
            ;;
         disk)
             disk_logs "$2/disk.log" 
@@ -58,7 +58,24 @@ get_logs(){
     esac
 }
 
-for t in ${logs[@]};
+
+while getopts 'pmdl' c
 do
-    get_logs $t $1
+    case $c in
+        p)  to_be_logged[process]=1 ;; 
+        d)  to_be_logged[disk]=1 ;;
+        m)  to_be_logged[memory]=1 ;;
+        l)  to_be_logged[load]=1 ;;
+    esac
+done
+
+number_of_opts=$(($#-1))
+shift $number_of_opts
+
+for key in "${!to_be_logged[@]}";
+do
+    if [[ ${to_be_logged[$key]} == 1 ]];
+    then
+        get_logs $key $1
+    fi
 done
