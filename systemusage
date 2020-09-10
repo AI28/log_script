@@ -1,0 +1,6 @@
+/var/log/systemusage/*.log{
+	daily
+	rotate 1
+	size 100
+	compress
+}
